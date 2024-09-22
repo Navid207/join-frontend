@@ -1,0 +1,23 @@
+<span id="headline">Kanban Project Management Tool</span>
+<img id="headerlogo" src="../img/icons/logo_blak.svg" alt="">
+<div id="headermenu">
+    <button id="ahelp" onclick="showElement(['contentHelp'],event), hideElement(['content','contentImpressum']), setActiveMenuTab()">
+        <img src="../img/icons/help.svg" alt="Help">
+    </button>
+    <div id="wrapperuser">
+        <button id="btnuser" onclick="toggleShowMenu(event)">
+            <span id="headerInitials"></span>
+        </button>
+        <div id="dropdownMenu" class="display-none" onmouseleave="toggleShowMenu(event)">
+            <a onclick="logout(event)" href="../index.html">
+                <span>Log out</span>
+            </a>
+            <a onclick="showHelp(event)">
+                <span>Help</span>
+            </a>
+            <a onclick="showLegalNotice(event)">
+                <span>Legal notice</span>
+            </a>
+        </div>
+    </div>
+</div>

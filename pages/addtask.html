@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- title -->
+    <title>Join - Add Task</title>
+
+    <!-- icon -->
+    <link rel="icon" type="image/png" href="../img/icons/logo_blak.svg">
+
+    <!-- include fonts -->
+    <link rel="stylesheet" href="">
+
+    <!-- add UTF-8 Code -->
+    <meta charset="utf-8">
+
+    <!-- handle resolution with viewport-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- include style -->
+    <link rel="stylesheet" href="../style/style.css">
+    <link rel="stylesheet" href="../style/temp_menu.css">
+    <link rel="stylesheet" href="../style/temp_header.css">
+    <link rel="stylesheet" href="../style/temp_impressum.css">
+    <link rel="stylesheet" href="../style/temp_help.css">
+    <link rel="stylesheet" href="../style/responsive.css">
+    <link rel="stylesheet" href="../style/addtask.css">
+
+    <!-- include moduls -->
+    <script src="../script/models/task.class.js"></script>
+
+    <!-- include script -->
+    <script src="../script/script.js"></script>
+    <script src="../script/HTMLtemplates/addTaskHTML.js"></script>
+    <script src="../script/addtask/subtask.js"></script>
+    <script src="../script/addtask/category.js"></script>
+    <script src="../script/addtask/addtask.js"></script>
+</head>
+
+<body onload="addtaskInit();" onclick="hideElement(['dropdownMenu'])">
+    <nav w3-include-html="../templates/menu.html"></nav>
+    <main>
+        <div id="header" w3-include-html="../templates/header.html"></div>
+
+        <div id="content">
+            <div id="addtaskWrapper" w3-include-html="../templates/addtask.html">
+
+            </div>
+            <div id="ovlyTaskaddedToBoard">
+                <span>Task added to board</span>
+                <img src="../img/icons/board.svg" alt="">
+            </div>
+        </div>
+        <div id="contentImpressum" class="display-none" w3-include-html="../templates/impressum.html"></div>
+        <div id="contentHelp" class="display-none" w3-include-html="../templates/help.html"></div>
+    </main>
+</body>
+
+</html>
