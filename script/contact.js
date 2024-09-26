@@ -16,18 +16,18 @@ async function initContact(tabID){
 function renderContactList(contactListsorted){
     let content = document.getElementById('contactlist');
     if (contactListsorted.length > 0) {
-        let letter = contactListsorted[0]['name'][0];
+        let letter = contactListsorted[0]['first_name'][0];
         content.innerHTML = getContactListLetterHTML(letter);;
         for (let i = 0; i < contactListsorted.length; i++) {
             let contactData = contactListsorted[i];
-            if (contactData['name'][0] == letter) {
+            if (contactData['first_name'][0] == letter) {
                 content.innerHTML += getContactListContactHTML(i,contactData);
             } else {
-                letter = contactData['name'][0];
+                letter = contactData['first_name'][0];
                 content.innerHTML += getContactListLetterHTML(letter);
                 content.innerHTML += getContactListContactHTML(i,contactData);
             }
-            setInitialsColor(i,contactData['color']);
+            setInitialsColor(i,contactData['color_code']);
         }
     } else content.innerHTML = getContactlistEmptyHTML();
 }
@@ -51,8 +51,8 @@ function setInitialsColor(idx,color){
 function setContactDetailsData(idx,contactListsorted){
     let contactData = contactListsorted[idx];
     document.getElementById('contactinitials').innerHTML = contactData['initials'];
-    document.getElementById('contactinitials').style.backgroundColor = contactData['color'];
-    document.getElementById('contactname').innerHTML = contactData['name'];
+    document.getElementById('contactinitials').style.backgroundColor = contactData['color_code'];
+    document.getElementById('contactname').innerHTML = contactData['first_name'] + ' ' + contactData['last_name'];
     document.getElementById('contactemail').innerHTML = contactData['email'];
     document.getElementById('contactemail').setAttribute('href', 'mailto:' + contactData['email']);
     document.getElementById('contactnumber').innerHTML = contactData['phone'];
@@ -118,17 +118,33 @@ function hideContactDetails(){
  * @returns {Promise<void>} A promise that resolves after the contact data is updated, saved, and contact details are updated.
  */
 async function saveContact(idx){
-    if (document.getElementById('wrapperCardDetails').checkValidity()) {       
+    if (document.getElementById('wrapperCardDetails').checkValidity()) {   
+        let contact = getSavedDatas(idx);
+        await requestItem('PUT','contacts/'+contact.id,contact);
         hideOvlyCard();
-        contactListSorted[idx]['name'] = document.getElementById('formContactName').value;
-        contactListSorted[idx]['phone'] = document.getElementById('formContactPhone').value;
-        contactListSorted[idx]['email'] = document.getElementById('formContactEmail').value;
-        contactListSorted[idx]['initials'] = getContactInitials(document.getElementById('formContactName').value);
-        await setItem('contacts',contactListSorted);
+        contactListSorted = await requestItem("GET","contacts");
         renderContactList(contactListSorted);
         setContactDetailsData(idx,contactListSorted);
         setContactListActiveStyle(idx);
     }
+}
+
+
+function getSavedDatas(idx){
+    let first_name = splitString(document.getElementById('formContactName').value).first;
+    let last_name = splitString(document.getElementById('formContactName').value).second;
+    let phone = document.getElementById('formContactPhone').value;
+    let email = document.getElementById('formContactEmail').value;
+    let contact = {
+        "id": contactListSorted[idx].id,
+        "first_name": first_name,
+        "last_name": last_name,
+        "phone": phone,
+        "email": email,
+        "color_code": contactListSorted[idx].color_code,
+        "initials": first_name[0]+last_name[0]
+    }
+    return contact
 }
 
 /**
@@ -138,11 +154,14 @@ async function saveContact(idx){
  * @returns {Promise<void>} A promise that resolves after the contact data is updated, saved, and contact list is rendered.
  */
 async function deleteContact(idx){
-    contactListSorted.splice(idx,1);
-    await setItem('contacts',contactListSorted);
-    hideOvlyCard();
-    renderContactList(contactListSorted);
-    hideContactDetails();
+    let key = 'contacts'+'/'+contactListSorted[idx].id;
+    let res = await requestItem('DELETE',key);
+    if (res == 204) {
+        contactListSorted.splice(idx,1);
+        hideOvlyCard();
+        renderContactList(contactListSorted);
+        hideContactDetails();
+    } else alert('Fehler beim Löschen des Kontakts');
 }
 
 /**
@@ -153,35 +172,29 @@ async function deleteContact(idx){
  * @returns {Promise<void>} A promise that resolves after the contact is added, list is rendered, details are shown, and overlay is hidden.
  */
 async function createContact(){
-    if (document.getElementById('wrapperCardDetails').checkValidity()) {
-        let contact =  {
-            name: document.getElementById('formContactName').value,
-            phone: document.getElementById('formContactPhone').value,
-            email: document.getElementById('formContactEmail').value,
-            initials: getContactInitials(document.getElementById('formContactName').value),
-            color: generateRendomColor() // Farbe random zuweisen
-        }
-        let idx = await addContactToList(contact);
+    if (! document.getElementById('wrapperCardDetails').checkValidity()) return
+    try {
+        await requestItem('POST', 'contacts', retContactData())
+        contactListSorted = await requestItem("GET","contacts");
         renderContactList(contactListSorted);
-        showContactDetails('',idx);
         hideOvlyCard();
         document.getElementById('ovlyContactSuccCreated').classList.add("addAnimtaion");
-        setTimeout(function(){document.getElementById('ovlyContactSuccCreated').classList.remove("addAnimtaion")},2000);
+        setTimeout(function(){document.getElementById('ovlyContactSuccCreated').classList.remove("addAnimtaion")},2000);    
+    } catch (error) {
+        alert('Fehler beim Erstellen des Kontakts');
     }
-}
+ }
 
-/**
- * Adds a new contact to the sorted contact list, sorts the list alphabetically,
- * saves the updated data in local storage, and returns the index of the newly added contact.
- *
- * @param {Object} contact - The contact data to be added to the list.
- * @returns {Promise<number>} A promise that resolves with the index of the newly added contact in the sorted list.
- */
-async function addContactToList(contact){
-    contactListSorted.push(contact);
-    contactListSorted.sort((a,b) => a['name'] < b['name'] ? -1 : a['name'] > b['name'] ? 1 : 0);
-    await setItem('contacts',contactListSorted);
-    return contactListSorted.findIndex((c) => c['name'] == contact['name'] );
+
+function retContactData(){
+    let contact =  {
+        first_name: splitString(document.getElementById('formContactName').value).first,
+        last_name: splitString(document.getElementById('formContactName').value).second,
+        phone: document.getElementById('formContactPhone').value,
+        email: document.getElementById('formContactEmail').value,
+        color_code: generateRendomColor()
+    }
+    return contact
 }
 
 

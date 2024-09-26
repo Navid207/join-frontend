@@ -74,12 +74,12 @@ function getOvlyCardEditContactHTML(idx) {
                     <div id="ovlyCardLine"></div>
                 </div>
                 <form id="wrapperCardDetails" onsubmit="return false">
-                    <div id="ovlUserIC" style="background-color: ${contactData['color']}">
+                    <div id="ovlUserIC" style="background-color: ${contactData['color_code']}">
                         <span>${contactData['initials']}</span>
                     </div>
                     <div id="ovlyCardForm">
                         <div>
-                            <input id="formContactName" type="text" placeholder="Name" value="${contactData['name']}"
+                            <input id="formContactName" type="text" placeholder="Name" value="${contactData['first_name']} ${contactData['last_name']}"
                             pattern="[A-ZÄÖÜ][a-zäöüß]{1,} [A-ZÄÖÜ][a-zäöüß]{1,}"
                             title="Name Lastname" required>
                             <img src="../img/icons/user_line.svg" alt="user">
@@ -160,9 +160,9 @@ function getContactListLetterHTML(letter) {
 function getContactListContactHTML(idx, contactData) {
     return /*html*/`
         <div id="contact${idx}" class="Contactlistelement" onclick="showContactDetails(event,'${idx}')">
-            <span id="contactinitialsList${idx}" class="contactinitialsList">${contactData['initials']}</span>
+            <span id="contactinitialsList${idx}" class="contactinitialsList">${contactData['first_name'][0]}${contactData['last_name'][0]}</span>
             <div class="wrapperContact">
-                <span id="contactNameList${idx}" class="contactnameList">${contactData['name']}</span>
+                <span id="contactNameList${idx}" class="contactnameList">${contactData['first_name']} ${contactData['last_name']}</span>
                 <span id="contactemailList${idx}" class="contactemailList">${contactData['email']}</span>
             </div>
         </div>

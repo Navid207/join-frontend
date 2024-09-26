@@ -3,7 +3,7 @@ const STORAGE_TOKEN = "0GG4X1CYZ51PJA0PR5I6U02CWNF21LHSH33IZ56P";
 const STORAGE_URL = "http://127.0.0.1:8000/";
 const API_URL = "http://127.0.0.1:8000/";
 const URL_PARAMS = new URLSearchParams(window.location.search);
-const USER = URL_PARAMS.get("user");
+let USER;
 
 let activeTab;
 let contactListSorted = [];
@@ -57,9 +57,9 @@ async function includeHTMLasync() {
  * @returns {Promise<void>} A Promise that resolves after data fetching and processing tasks are completed.
  */
 async function getData() {
-  contactListSorted = await getItem("contacts");
-  tasks = await getItem("tasks");
-  groups = await getItem("groups");
+  contactListSorted = await requestItem("GET","contacts");
+  //tasks = await getItem("tasks");
+  //groups = await getItem("groups");
   mapTasks();
 }
 
@@ -80,29 +80,32 @@ async function setItem(key, value) {
   }).then((res) => res.json());
 }
 
-async function fetchData(url, body) {
+async function fetchData(url, method, body) {
+  const token = localStorage.getItem("token");  
+  const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+  };
+  if (token) headers["Authorization"] = `Token ${token}`;
   return fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Accept": "application/json",
-    },
+    method: method,
+    headers: headers,
     body: JSON.stringify(body),
   });
 }
 
 async function getToken(username, password) {
   try {
-    const res = await fetchData(API_URL + "login/", { username, password });
+    const res = await fetchData(API_URL + "login/", "POST",{ username, password });
     const data = await res.json();
-    if (res.ok && data.token) return loginSuccessed(username, data);
+    if (res.ok && data.token) return USER = loginSuccessed(username, data);
   } catch (error) { }
 }
 
 function loginSuccessed(username, data) {
   localStorage.setItem("token", data.token);
   let user = new User();
-  user.name = username;
+  user.name = data.first_name + ' ' + data.last_name;
   user.id = data.user_id;
   user.email = data.email;
   return user;
@@ -117,12 +120,46 @@ function loginSuccessed(username, data) {
  * @param {string} key - The key for which to retrieve the associated value.
  * @returns {Promise<any>} - A Promise that resolves with the value associated with the key from the storage.
  */
-async function getItem(key) {
-  const url = `${STORAGE_URL}?key=${key}&token=${STORAGE_TOKEN}`;
-  let response = await fetch(url).then((res) => res.json());
-  response = response.data.value.replace(/\'/g, '"');
-  if (response) return JSON.parse(response);
+async function getItem(url) {
+  return
+  //const url = `${STORAGE_URL}/${key}/`;
+  //let response = await fetch(url).then((res) => res.json());
+  //response = response.data.value.replace(/\'/g, '"');
+  //if (response) return JSON.parse(response);
 }
+
+
+async function requestItem(method, key, body = null) {
+  const url = `${STORAGE_URL}${key}/`;
+  const options = setFetchOptions(method,body )
+  let response = await fetch(url, options);
+  if (response.ok){
+   if (method != 'DELETE')return await response.json();
+   else return response.status;
+  }
+  else throw new Error(`Request failed with status: ${response.status}`);
+}
+
+
+function setFetchOptions(method, body){
+  const token = localStorage.getItem('token');
+  const options = {
+    method: method,
+    headers: {
+      'Authorization': `Token ${token}`,
+      'Content-Type': 'application/json'
+    }
+  };
+  if (body) options.body = JSON.stringify(body);
+  return options
+}
+
+
+function splitString(input) {
+  let [first, second] = input.split(" ");
+  return { first, second };
+}
+
 
 /**
  * Maps the existing task data to a new array of Task objects with updated properties.
@@ -287,7 +324,11 @@ function setTabLink(userID) {
  *
  * @param {Event} event - The event object associated with the logout action.
  */
-function logout(event) {
+async function logout(event) {
+  try {
+    const res = await fetchData(API_URL + "logout/", "POST",{ username, password });
+  } catch (error) { }
+  localStorage.removeItem("token");
   stopHideElement(event);
 }
 

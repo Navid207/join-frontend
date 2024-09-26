@@ -70,7 +70,7 @@ async function initLogin() {
   // contactListSorted = await getItem('contacts');
   // loadLogin();
   // checkState();
-  //getToken();
+  // getToken();
 }
 
 /**
@@ -161,17 +161,11 @@ async function addUser() {
     email: email,
   };
   try {
-    const res = await fetchData(API_URL + "register/", body);
+    const res = await fetchData(API_URL + "register/","POST", body);
     const data = await res.json();
     if (res.ok) return addUserToData();
     if (data[0]==="{'Email already exists!'}") return addMsg('email', 'msgEmail', 'Email already exists!');
   } catch (error) { }
-}
-
-
-function splitString(input) {
-  let [first, second] = input.split(" ");
-  return { first, second };
 }
 
 
@@ -180,39 +174,6 @@ async function addUserToData() {
   renderLogin();
 }
 
-// /**
-//  * Adds a new user to the data, updates the user ID, saves the data, sends a welcome email,
-//  * initiates the login process, and renders the login UI (User Interface).
-//  *
-//  * @param {Object} user - The user object to be added to the data.
-//  * @property {string} user.name - The name of the user.
-//  * @property {string} user.email - The email of the user.
-//  * @property {string} user.pwd - The password of the user.
-//  */
-// async function addUserToData(user) {
-//   user.id = users.length + 1;
-//   users.push(user);
-//   setItem("users", users);
-//   sendWelcomMail(user);
-//   localStorage.removeItem("User");
-//   renderLogin();
-//   await initLogin();
-// }
-
-// /**
-//  * Sends a welcome email to the specified user by making a POST request to a remote server.
-//  *
-//  * @param {Object} user - The user object to whom the welcome email will be sent.
-//  * @property {string} user.name - The name of the user.
-//  * @property {string} user.email - The email of the user.
-//  */
-// function sendWelcomMail(user) {
-//   const data = JSON.stringify({ name: user.name, mail: user.email });
-//   fetch(
-//     "https://navidpazoki.com/join.navidpazoki.com/php/send_mail_add_user.php",
-//     { method: "POST", body: data }
-//   );
-// }
 
 /**
  * Renders the login UI (User Interface) by updating the HTML content of specified elements and showing/hiding elements.
@@ -261,6 +222,7 @@ async function login() {
  * @property {string} user.id - The unique identifier of the user.
  */
 function loginSuccess(user) {
+  debugger
   safeLogin(JSON.stringify(user));
   window.location.href = "pages/summary.html" + "?user=" + user.id;
 }
