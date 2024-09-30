@@ -25,7 +25,7 @@ async function init(tabID) {
   setActiveMenuTab(tabID);
   activeTab = tabID;
   setHeaderUserData();
-  setTabLink(USER);
+  //setTabLink(USER);
 }
 
 /**
@@ -297,27 +297,27 @@ function setActiveMenuTab(tabID) {
   }
 }
 
-/**
- * Sets the href attribute of navigation links for each menu tab based on the provided user ID.
- *
- * @param {string} userID - The ID of the user for constructing the href attributes.
- */
-function setTabLink(userID) {
-  if (userID) {
-    document
-      .getElementById("tabsummary")
-      .setAttribute("href", `../pages/summary.html?user=${userID}`);
-    document
-      .getElementById("tabboard")
-      .setAttribute("href", `../pages/board.html?user=${userID}`);
-    document
-      .getElementById("tabaddtask")
-      .setAttribute("href", `../pages/addtask.html?user=${userID}`);
-    document
-      .getElementById("tabcontacts")
-      .setAttribute("href", `../pages/contacts.html?user=${userID}`);
-  }
-}
+// /**
+//  * Sets the href attribute of navigation links for each menu tab based on the provided user ID.
+//  *
+//  * @param {string} userID - The ID of the user for constructing the href attributes.
+//  */
+// function setTabLink(userID) {
+//   if (userID) {
+//     document
+//       .getElementById("tabsummary")
+//       .setAttribute("href", `../pages/summary.html?user=${userID}`);
+//     document
+//       .getElementById("tabboard")
+//       .setAttribute("href", `../pages/board.html?user=${userID}`);
+//     document
+//       .getElementById("tabaddtask")
+//       .setAttribute("href", `../pages/addtask.html?user=${userID}`);
+//     document
+//       .getElementById("tabcontacts")
+//       .setAttribute("href", `../pages/contacts.html?user=${userID}`);
+//   }
+// }
 
 /**
  * Logs the user out by preventing the default behavior of the given event.
@@ -329,6 +329,7 @@ async function logout(event) {
     const res = await fetchData(API_URL + "logout/", "POST",{ username, password });
   } catch (error) { }
   localStorage.removeItem("token");
+  localStorage.removeItem("user");
   stopHideElement(event);
 }
 
@@ -340,14 +341,10 @@ async function logout(event) {
  * @returns {Promise<void>} - A Promise that resolves after setting the header user data.
  */
 async function setHeaderUserData() {
-  let userID = USER;
-  if (userID) {
-    let users = await getItem("users");
-    let user = users.filter((u) => u["id"] == userID);
-    if (user.length != 0) {
-      let initials = getContactInitials(user[0]["name"]);
+  let user = await JSON.parse(localStorage.getItem('user'))
+  if (user) {
+      let initials = getContactInitials(user.name);
       document.getElementById("headerInitials").innerHTML = initials;
-    } else console.warn("userID not found");
   } else document.getElementById("headerInitials").innerHTML = "Guest";
 }
 

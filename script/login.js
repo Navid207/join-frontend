@@ -222,7 +222,7 @@ async function login() {
  * @property {string} user.id - The unique identifier of the user.
  */
 function loginSuccess(user) {
-  debugger
+  localStorage.setItem('user', JSON.stringify(user));
   safeLogin(JSON.stringify(user));
   window.location.href = "pages/summary.html" + "?user=" + user.id;
 }
@@ -242,8 +242,8 @@ function loginGuest() {
 function safeLogin(user) {
   let save = document.getElementById("saveLogin");
   save.checked
-    ? localStorage.setItem("User", user)
-    : localStorage.removeItem("User");
+    ? localStorage.setItem("UserD", user)
+    : localStorage.removeItem("UserD");
 }
 
 /**

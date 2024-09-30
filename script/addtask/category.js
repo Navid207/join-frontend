@@ -6,7 +6,8 @@
  */
 function loadChoosedCategory() {
     let categoryName = document.getElementById('choosedCatagory').value;
-    return categoryName;
+    let cat = categoryList.find(e => e.name === categoryName )
+    return cat.id;
 }
 
 /**
@@ -33,6 +34,7 @@ function loadNewCategoryInput() {
         const group = CATEGORY[i];
         categoryColoredDots.innerHTML += newCategoryDotsHTML(group, i);
         document.getElementById(`newCatColor${i}`).style.backgroundColor = group['color'];
+        // if (CATEGORY.length - 1 == i) 
     }
 }
 
@@ -88,8 +90,8 @@ function animateDot(value) {
 async function saveNewCategory() {
     let newCategoryName = document.getElementById('newCategoryInput').value;
     let colorChoosed = document.querySelector('#categoryColoredDots input[type="radio"]:checked').value.toString();
-    groups.push({ name: newCategoryName, color: colorChoosed });
-    await setItem('groups', groups);
+    let body = ({ name: newCategoryName, color_code: colorChoosed });
+    await requestItem('POST','category', body);
     loadCategory();
     closeNewCategory()
 }
@@ -104,8 +106,7 @@ async function saveNewCategory() {
  */
 async function deletCategory(index) {
     event.stopPropagation();
-    groups.splice(index, 1);
-    await setItem('groups', groups);
+    await requestItem('DELETE','category/'+index);
     loadCategory();
 }
 

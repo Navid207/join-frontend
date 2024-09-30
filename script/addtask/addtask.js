@@ -1,5 +1,6 @@
 let conditNewTask = 0;
 let oldSubtask = '';
+let categoryList;
 const CATEGORY = [
     {
         name: 'Design',
@@ -32,7 +33,7 @@ const CATEGORY = [
  */
 async function addtaskInit() {
     await init('tabaddtask');
-    loadCategory();
+    await loadCategory();
     loadUser(contactListSorted);
     loadNewCategoryInput();
     setMinDate('addTaskDueDate');
@@ -42,13 +43,15 @@ async function addtaskInit() {
  * Loads task categories into the specified HTML element based on available groups.
  *
  */
-function loadCategory() {
+async function loadCategory() {
     let newCategoryListItems = document.getElementById('newCategoryListItems');
     newCategoryListItems.innerHTML = newCategoryLiHTML();
-    for (let j = 0; j < groups.length; j++) {
-        const group = groups[j];
-        newCategoryListItems.innerHTML += categoryLiHTML(group, j);
-        document.getElementById(`color${j}`).style.backgroundColor = group['color'];
+    categoryList = await requestItem('GET','category'); 
+    for (let j = 0; j < categoryList.length; j++) {
+        const group = categoryList[j];
+        if (j < 3) newCategoryListItems.innerHTML += categoryLiHTMLFix(group, j);
+        else newCategoryListItems.innerHTML += categoryLiHTML(group, j);
+        document.getElementById(`color${j}`).style.backgroundColor = group['color_code'];
     }
 }
 
@@ -75,8 +78,8 @@ function loadUser(UserrArray) {
 function addUserToList(UserrArray, listItems) {
     for (let i = 0; i < UserrArray.length; i++) {
         const user = UserrArray[i];
-        const initials = getContactInitials(user.name);
-        listItems[0].innerHTML += contactLiHTML(i, user, initials);
+        const initials = user.initials;
+        listItems[0].innerHTML += contactLiHTML(user, initials);
     }
 }
 
@@ -108,7 +111,7 @@ function loadSelectetUsers() {
     for (let i = 0; i < assignedUsers.length; i++) {
         const userMail = assignedUsers[i];
         let userIndex = getArrayOfIncludes('email', userMail, contactListSorted)[0];
-        let initials = getContactInitials(contactListSorted[userIndex].name);
+        let initials = (contactListSorted[userIndex].initials);
         userSlot.innerHTML += contectCircleHTML(contactListSorted[userIndex].color, initials)
     }
 }
@@ -124,12 +127,12 @@ async function createTask() {
     let taskDescription = setElementValue('addTaskDescription');
     let taskDueDate = document.getElementById('addTaskDueDate').value;
     let taskPrio = checkPrioStatus();
-    let subtasks = loadSubtasks();
+    // let subtasks = loadSubtasks();
     let assignedUsers = loadAssignedUsers();
+    debugger
     let group = loadChoosedCategory();
-
-    tasks.push({ title: taskTitle, descr: taskDescription, group: group, users: assignedUsers, prio: taskPrio, deadline: taskDueDate, condit: conditNewTask, subTask: subtasks });
-    await setItem('tasks', tasks);
+    let body = ({ title: taskTitle, state: conditNewTask, description: taskDescription, due_date: taskDueDate, priority: taskPrio, category: group, assigned_users: assignedUsers });
+    await requestItem('POST','tasks', body);
     showOvlyTaskAdded()
     hideOvlyCard();
     if (typeof (render) != "undefined") { render(tasks) };
@@ -185,7 +188,7 @@ function loadAssignedUsers() {
     let users = document.getElementById('userList').getElementsByClassName('item');
     for (let i = 0; i < users.length; i++) {
         if (users[i].classList.contains('checked')) {
-            assignedUsers.push(contactListSorted[i]['email']);
+            assignedUsers.push(contactListSorted[i]['id']);
         }
     }
     return assignedUsers;

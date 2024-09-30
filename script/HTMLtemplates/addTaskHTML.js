@@ -16,17 +16,16 @@ function newCategoryLiHTML() {
 /**
  * Generates HTML markup for a list item representing a contact with initials and a checkbox.
  *
- * @param {number} idx - The index of the contact.
  * @param {Object} user - The user/contact data.
  * @param {string} initials - The initials of the contact.
  * @returns {string} The HTML markup for the contact list item.
  */
-function contactLiHTML(idx, user, initials) {
+function contactLiHTML(user, initials) {
     return /*html*/`
-    <li class="item" id="selectUser${idx}">
+    <li class="item" id="selectUser${user['id']}">
         <div class="item-user">
-            <div style="background-color: ${user['color']}">${initials}</div>
-            <span>${user['name']}</span>
+            <div style="background-color: ${user['color_code']}">${initials}</div>
+            <span>${user['first_name']} ${user['last_name']}</span>
         </div>
         <span class="checkbox"></span>
     </li>
@@ -62,7 +61,19 @@ function categoryLiHTML(group, i) {
             <span>${group['name']}</span>
             <span class = "groupDotColors" id="color${i}" ></span>
         </div>            
-        <img src="../img/icons/bin.svg" alt="bin-img" onclick="deletCategory(${i})">
+        <img src="../img/icons/bin.svg" alt="bin-img" onclick="deletCategory(${group['id']})">
+    </li>
+    `
+}
+
+function categoryLiHTMLFix(group, i) {
+    return /*html*/`
+    <li class="item">
+        <div onclick="chooseCategory('${group['name']}')">
+            <span>${group['name']}</span>
+            <span class = "groupDotColors" id="color${i}" ></span>
+        </div>            
+        
     </li>
     `
 }
