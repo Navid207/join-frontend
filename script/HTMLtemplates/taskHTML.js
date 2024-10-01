@@ -35,9 +35,7 @@ function getOvlyTaskHTML(idx) {
                     ${assignedToHTML}
                 </div>
             </div>
-            <div id="ovlySubTask">
-                ${getSubtasksHTML(task, idx)}
-            </div>
+
             <div id="ovlyTaskWrapperBtn">
                 <button class="but-light" onclick="deleteTask(${idx})">
                     <div></div>

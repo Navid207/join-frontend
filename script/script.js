@@ -58,8 +58,8 @@ async function includeHTMLasync() {
  */
 async function getData() {
   contactListSorted = await requestItem("GET","contacts");
-  //tasks = await getItem("tasks");
-  //groups = await getItem("groups");
+  tasks =  await requestItem("GET","tasks");
+  groups =  await requestItem("GET","category");
   mapTasks();
 }
 
@@ -168,14 +168,14 @@ function mapTasks() {
   tasks = tasks.map(
     (task) =>
       new Task(
+        task.id,
         task.title,
-        task.descr,
-        task.group,
-        task.users,
-        task.deadline,
-        task.prio,
-        task.condit,
-        task.subTask
+        task.description,
+        task.category,
+        task.assigned_users,
+        task.due_date,
+        task.priority,
+        task.state,
       )
   );
 }

@@ -47,27 +47,37 @@ function render(showTasks) {
   };
   for (let i = 0; i < showTasks.length; i++) {
     const task = showTasks[i];
-    let condition = CONDITIONS[task['condit']];
-    let prio = PRIOS[task['prio']];
+    let condition = CONDITIONS[task['state']];
+    let prio = PRIOS[task['priority']];
     conditionsCounter[condition] += 1;
     const slot = document.getElementById(condition);
-    slot.innerHTML += cardHTML(i, task, prio, progressHTML(showTasks, i), useresHTML(showTasks, i), getGroupColor(showTasks, i));
+    slot.innerHTML += cardHTML(
+      task.id, 
+      task, 
+      prio, 
+      progressHTML(showTasks, i), 
+      useresHTML(showTasks, i), 
+      getCatFromArray(showTasks, i, 'name', "NV"),
+      getCatFromArray(showTasks, i, 'color_code', "#9797a5")
+    );
   }
   setEmptySlots(conditionsCounter);
 }
 
-/**
- * Retrieves the color associated with the group of a task based on the provided array of tasks and groups.
- *
- * @param {Array} showTasks - An array of tasks.
- * @param {number} index - The index of the task for which to retrieve the group color.
- * @returns {string} The color associated with the group of the task or a default color if the group is not found.
- */
-function getGroupColor(showTasks, index) {
-  let groupsId = findIndexByValue('name', showTasks[index]['group'], groups);
-  if (groupsId >= 0) return groups[groupsId]['color']
-  else return "#9797a5"
+
+function getCatFromArray(showTasks, index, returnValue, errorValue) {
+  let groupsId = findIndexByValue('id', showTasks[index]['category'], groups);
+  if (groupsId >= 0) return groups[groupsId][returnValue]
+  else return errorValue
 }
+
+
+function getCatFromArray(showTasks, index, returnValue, errorValue) {
+  let groupsId = findIndexByValue('id', showTasks[index]['category'], groups);
+  if (groupsId >= 0) return groups[groupsId][returnValue]
+  else return errorValue
+}
+
 
 /**
  * Sets empty slot HTML for task containers based on the count of tasks in each condition.
@@ -142,8 +152,9 @@ function allowDrop(ev) {
  * @param {number} condit - The condition to which the element is moved.
  */
 function moveToDrop(condit) {
-  tasks[currentDraggedElement]['condit'] = condit;
-  setItem('tasks', tasks);
+  let id = findIndexByValue('id', currentDraggedElement, tasks)
+  tasks[id]['state'] = condit;
+  requestItem('PUT','tasks/'+tasks[id]['id'], tasks[id]);
   render(tasks);
   const condition = {
     0: 'taskToDo',

@@ -11,18 +11,15 @@
  * @param {string} color - The color associated with the task group.
  * @returns {string} The HTML markup for a task card.
  */
-function cardHTML(index, task, prio, progress, useres, color) {
+function cardHTML(index, task, prio, progress, useres, group, color) {
     let cardControl = cardControlHTML(task, index);
     return /*html*/`
     <div class="card">
         <div class="cardContend" id="task${index}" draggable="true" ondragstart="startDragging(${index})" 
           onclick="showOvlyCard(getOvlyTaskHTML(${index})), checkSubtasks(${index})"> 
-            <div class="group" style="background-color:${color}">${task['group']}</div>
+            <div class="group" style="background-color:${color}">${group}</div>
             <h3>${task['title']}</h3>
-            <p>${task['descr']}</p>
-            <div id="progress${index}" class="progress">
-                ${progress}
-            </div>
+            <p>${task['description']}</p>
             <div class="btm-line">
                 <div id='users${index}' class="users">${useres}</div>
                 <img src="${prio}" alt="prio">
@@ -33,6 +30,26 @@ function cardHTML(index, task, prio, progress, useres, color) {
         </div>
     </div>
   `
+//     return /*html*/`
+//     <div class="card">
+//         <div class="cardContend" id="task${index}" draggable="true" ondragstart="startDragging(${index})" 
+//           onclick="showOvlyCard(getOvlyTaskHTML(${index})), checkSubtasks(${index})"> 
+//             <div class="group" style="background-color:${color}">${task['group']}</div>
+//             <h3>${task['title']}</h3>
+//             <p>${task['descr']}</p>
+//             <div id="progress${index}" class="progress">
+//                 ${progress}
+//             </div>
+//             <div class="btm-line">
+//                 <div id='users${index}' class="users">${useres}</div>
+//                 <img src="${prio}" alt="prio">
+//             </div>
+//         </div>
+//         <div class="cardControl">                        
+//             ${cardControl}
+//         </div>
+//     </div>
+//   `
 }
 
 /**
@@ -107,17 +124,18 @@ function cardControlDownHTML(task, index) {
  * @returns {string} The HTML markup for the progress bar and status of subtasks.
  */
 function progressHTML(showTasks, i) {
-    if (!showTasks[i]['subTask'].length || showTasks[i]['subTask'].length < 1) { return '' }
-    const subTask = showTasks[i]['subTask'];
-    let done = 0;
-    for (let i = 0; i < subTask.length; i++) {
-        if (subTask[i]['state'] == 1) { done++ }
-    }
-    let progress = 100 / subTask.length * done;
-    return/*html*/`
-        <div><div style="width: ${progress}%"></div></div>
-        <span>${done}/${subTask.length} Done</span> 
-    `
+    return
+    // if (!showTasks[i]['subTask'].length || showTasks[i]['subTask'].length < 1) { return '' }
+    // const subTask = showTasks[i]['subTask'];
+    // let done = 0;
+    // for (let i = 0; i < subTask.length; i++) {
+    //     if (subTask[i]['state'] == 1) { done++ }
+    // }
+    // let progress = 100 / subTask.length * done;
+    // return/*html*/`
+    //     <div><div style="width: ${progress}%"></div></div>
+    //     <span>${done}/${subTask.length} Done</span> 
+    // `
 }
 
 /**
@@ -129,11 +147,11 @@ function progressHTML(showTasks, i) {
  */
 function useresHTML(showTasks, index) {
     let html = ``;
-    for (let i = 0; i < showTasks[index]['users'].length; i++) {
-        if (showTasks[index]['users'].length <= 3 || i < 2) {
-            let userId = findIndexByValue('email', showTasks[index]['users'][i], contactListSorted);
+    for (let i = 0; i < showTasks[index]['assigned_users'].length; i++) {
+        if (showTasks[index]['assigned_users'].length <= 3 || i < 2) {
+            let userId = findIndexByValue('id', showTasks[index]['assigned_users'][i], contactListSorted);
             let initials = contactListSorted[userId]['initials'];
-            let color = contactListSorted[userId]['color'];
+            let color = contactListSorted[userId]['color_code'];
             html +=/*html*/`
         <div style="background-color:${color}">${initials}</div>    
       `
